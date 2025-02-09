@@ -44,13 +44,15 @@ export default function Home() {
           placeholder="Enter your location"
           value={location} // bind input value to state
           onChange={(e) => setLocation(e.target.value)} // update state on input change
-          className="w-80 p-2 border border-[#8d7b68] rounded-md text-[#2c3639] bg-[#f8f5f0] focus:outline-none focus:ring-2 focus:ring-[#8d7b68]"
+          className="w-80 p-2 border border-[#8d7b68] rounded-md text-[#2c3639] bg-[#f8f5f0] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8d7b68] focus:bg-[#eae5db]"
+
         />
 
         {/* Submit Button: redirects to /cafes with location as query parameter */}
         <button
           type="submit"
-          className="px-6 py-2 bg-[#8d7b68] text-white rounded-md hover:bg-[#5e503f]"
+          className="px-6 py-2 bg-[#8d7b68] text-white rounded-md hover:bg-[#5e503f] font-bold"
+
         >
           Search
         </button>
