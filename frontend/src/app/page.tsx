@@ -13,17 +13,18 @@ import useOnclickOutside from "react-cool-onclickoutside";
 
 // Home Component (includes app title, description, form, city autocomplete component)
 export default function Home() {
+
   // State to store the user's selected city
   const [selectedPlace, setSelectedPlace] = useState("");
   const [radius, setRadius] = useState("5") // search radius (default 5 miles)
   const router = useRouter(); // next.js router for page navigation
 
-  // Form submit handler: redirects user to the cafes page w/ selected city as query parameter
+  // Form submit handler: redirects user to the cafes page w/ selected city and radius as query parameter
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // prevents default form submission behavior
     if (selectedPlace.trim()) {
-      // navigate to cafes page
-      router.push(`/cafes?location=${encodeURIComponent(selectedPlace)}`);
+      // navigate to Cafes Page, pass both selectedPlace and radius in query parameters
+      router.push(`/cafes?location=${encodeURIComponent(selectedPlace)}&radius=${radius}`);
     }
   };
 

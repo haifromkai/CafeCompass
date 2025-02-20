@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // Define a type for cafes
@@ -16,15 +16,18 @@ type Cafe = {
 
 // Cafes Page Component
 export default function CafesPage() {
+
   const searchParams = useSearchParams();
+  const router = useRouter();
+
   const location = searchParams.get("location"); // Get 'location' query parameter
-  const radius = searchParams.get("radius") || "5"; // Get 'radius' query parameter, default 5 miles
+  const radius = searchParams.get("radius"); // Get 'radius' query parameter
 
   const [cafes, setCafes] = useState<Cafe[]>([]); // State for storing cafe data
   const [filter, setFilter] = useState<"seating" | "outlets" | "noise" | null>(null); // State for filter type
 
+  // Fetch cafes based on location (use mock data for now)
   useEffect(() => {
-    // Fetch cafes based on location (use mock data for now)
     if (location) {
       const mockCafes: Cafe[] = [
         { id: 1, name: "Cafe A", seating: 4, outlets: 5, noise: 3 },
@@ -58,39 +61,57 @@ export default function CafesPage() {
   return (
     // Main Container: centers content and applies cozy café colors
     <div className="flex flex-col items-center min-h-screen bg-[#0D1E1C] p-4">
+
+      {/* Back Button */}
+      <button
+        onClick={() => router.push("/")}
+        className="absolute top-4 left-4 px-4 py-2 rounded-md 
+        bg-[#f8f5f0] text-[#2c3639] hover:bg-[#5e503f] hover:text-white transition-colors"
+      >
+        ← Back
+      </button>
+      
+
       {/* Page Title: displays location-based search title */}
       <h1 className="text-3xl font-bold text-center text-[#ffffff] mb-4">
-        Cafés in {location || "Your Location"} ({radius} Mile Radius)
+        Cafés in {location}
       </h1>
+      <p className="text-xl font-bold text-center text-[#ffffff] mb-4">
+        {radius} Mile Radius
+      </p>
 
 
       {/* Filter Buttons */}
       <div className="flex space-x-4 mb-4">
         <span className="text-white font-semibold">Filter By:</span>
+
         <button
           className={`px-4 py-2 rounded-md ${
-            filter === "seating" ? "bg-[#8d7b68] text-white" : "bg-[#f8f5f0] text-[#2c3639]"
+            filter === "seating" ? "bg-[#5e503f] text-white" : "bg-[#f8f5f0] text-[#2c3639]"
           } hover:bg-[#8d7b68] hover:text-white transition-colors`}
-          onClick={() => setFilter("seating")}
+          onClick={() => setFilter(filter === "seating" ? null : "seating")}
         >
           Seats
         </button>
+
         <button
           className={`px-4 py-2 rounded-md ${
-            filter === "outlets" ? "bg-[#8d7b68] text-white" : "bg-[#f8f5f0] text-[#2c3639]"
+            filter === "outlets" ? "bg-[#5e503f] text-white" : "bg-[#f8f5f0] text-[#2c3639]"
           } hover:bg-[#8d7b68] hover:text-white transition-colors`}
-          onClick={() => setFilter("outlets")}
+          onClick={() => setFilter(filter === "outlets" ? null : "outlets")}
         >
           Outlets
         </button>
+
         <button
           className={`px-4 py-2 rounded-md ${
-            filter === "noise" ? "bg-[#8d7b68] text-white" : "bg-[#f8f5f0] text-[#2c3639]"
+            filter === "noise" ? "bg-[#5e503f] text-white" : "bg-[#f8f5f0] text-[#2c3639]"
           } hover:bg-[#8d7b68] hover:text-white transition-colors`}
-          onClick={() => setFilter("noise")}
+          onClick={() => setFilter(filter === "noise" ? null : "noise")}
         >
           Quietness
         </button>
+
       </div>
 
 
@@ -101,7 +122,7 @@ export default function CafesPage() {
           // Individual café card
           <div
             key={cafe.id} // unique key for React rendering
-            className="p-4 bg-[#f8f5f0] rounded-md w-80 shadow-md text-[#2c3639] hover:bg-[#8d7b68] hover:text-white transition-colors duration-500"
+            className="p-4 bg-[#f8f5f0] rounded-md w-80 shadow-md text-[#2c3639] hover:bg-[#5e503f] hover:text-white transition-colors duration-500"
           >
             {/* Café Name */}
             <h2 className="text-xl font-bold">{cafe.name}</h2>
