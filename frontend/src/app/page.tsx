@@ -119,7 +119,7 @@ const PlacesAutocomplete = ({ setSelectedPlace }: { setSelectedPlace: (value: st
         value={value} // binds input val to PlacesAutocomplete state
         onChange={handleInput} // handles input changes
         disabled={!ready} // diasables input if API not ready
-        placeholder="Select a city"
+        placeholder="Type in your city"
         className="w-full p-2 border border-[#8d7b68] rounded-md text-[#2c3639] bg-[#f8f5f0] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8d7b68] focus:bg-[#eae5db]"
       />
       {status === "OK" && (
