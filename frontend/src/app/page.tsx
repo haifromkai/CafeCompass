@@ -15,6 +15,7 @@ import useOnclickOutside from "react-cool-onclickoutside";
 export default function Home() {
   // State to store the user's selected city
   const [selectedPlace, setSelectedPlace] = useState("");
+  const [radius, setRadius] = useState("5") // search radius (default 5 miles)
   const router = useRouter(); // next.js router for page navigation
 
   // Form submit handler: redirects user to the cafes page w/ selected city as query parameter
@@ -39,6 +40,20 @@ export default function Home() {
       {/* Form Section: retrieves user input for city via Autocomplete Component */}
       <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4">
         <PlacesAutocomplete setSelectedPlace={setSelectedPlace} />
+
+        {/* Search Radius Selection: allows user to specify search radius in miles */}
+        <label className="text-white mb-2">Search Radius: {radius} miles</label>
+        <input
+          type="range"
+          min="1"
+          max="15"
+          step="1"
+          value={radius}
+          onChange={(e) => setRadius(e.target.value)}
+          className="w-80 h-2 bg-[#8d7b68] rounded-lg appearance-none cursor-pointer 
+                     accent-[#5e503f] hover:opacity-70 transition-opacity duration-300"
+         />
+
         {/* Submit Button: redirects to /cafes with city as query parameter */}
         <button
           type="submit"
