@@ -11,13 +11,14 @@ type Cafe = {
   seating: number;
   outlets: number;
   noise: number;
-  id: number; // Add a unique id for React rendering
+  id: number;
 };
 
 // Cafes Page Component
 export default function CafesPage() {
   const searchParams = useSearchParams();
-  const location = searchParams.get("location"); // Get the 'location' query parameter
+  const location = searchParams.get("location"); // Get 'location' query parameter
+  const radius = searchParams.get("radius") || "5"; // Get 'radius' query parameter, default 5 miles
 
   // State for storing cafe data
   const [cafes, setCafes] = useState<Cafe[]>([]);
@@ -39,14 +40,14 @@ export default function CafesPage() {
       ];
       setCafes(mockCafes);
     }
-  }, [location]);
+  }, [location, radius]);
 
   return (
     // Main Container: centers content and applies cozy café colors
     <div className="flex flex-col items-center min-h-screen bg-[#0D1E1C] p-4">
       {/* Page Title: displays location-based search title */}
       <h1 className="text-3xl font-bold text-center text-[#ffffff] mb-4">
-        Cafés Near {location || "Your Location"}
+        Cafés in {location || "Your Location"} ({radius} Mile Radius)
       </h1>
 
       {/* Placeholder Café List */}

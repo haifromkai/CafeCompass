@@ -42,7 +42,8 @@ export default function Home() {
         <PlacesAutocomplete setSelectedPlace={setSelectedPlace} />
 
         {/* Search Radius Selection: allows user to specify search radius in miles */}
-        <label className="text-white mb-2">Search Radius: {radius} miles</label>
+        <label className="text-white mb-2">Search Radius: {radius} {radius === "1" ? "mile" : "miles"}
+        </label>
         <input
           type="range"
           min="1"
