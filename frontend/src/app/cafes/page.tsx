@@ -4,16 +4,21 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from 'next/image';
+
 
 // Define a type for cafes
 type Cafe = {
   id: number;
   name: string;
+  address: string;
+  rating: number; // Google Rating
   seating: number;
   outlets: number;
   noise: number;
   image: string;
 };
+
 
 // Cafes Page Component
 export default function CafesPage() {
@@ -21,30 +26,54 @@ export default function CafesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const location = searchParams.get("location"); // Get 'location' query parameter
-  const radius = searchParams.get("radius"); // Get 'radius' query parameter
+  // Get the passed query params from landing page
+  const location = searchParams.get("selectedPlace");
+  const radius = searchParams.get("radius");
 
   const [cafes, setCafes] = useState<Cafe[]>([]); // State for storing cafe data
   const [filter, setFilter] = useState<"seating" | "outlets" | "noise" | null>(null); // State for filter type
 
-  // Fetch cafes based on location (use mock data for now)
+
+
+  // Fetch cafes using backend python script
   useEffect(() => {
-    if (location) {
-      const mockCafes: Cafe[] = [
-        { id: 1, name: "Cafe A", seating: 4, outlets: 5, noise: 3, image: "/images/default-cafe.jpeg" },
-        { id: 2, name: "Cafe B", seating: 3, outlets: 4, noise: 4, image: "/images/default-cafe.jpeg" },
-        { id: 3, name: "Cafe C", seating: 5, outlets: 5, noise: 2, image: "/images/default-cafe.jpeg" },
-        { id: 4, name: "Cafe D", seating: 4, outlets: 3, noise: 3, image: "/images/default-cafe.jpeg" },
-        { id: 5, name: "Cafe E", seating: 3, outlets: 4, noise: 5, image: "/images/default-cafe.jpeg" },
-        { id: 6, name: "Cafe F", seating: 4, outlets: 4, noise: 4, image: "/images/default-cafe.jpeg" },
-        { id: 7, name: "Cafe G", seating: 2, outlets: 5, noise: 3, image: "/images/default-cafe.jpeg" },
-        { id: 8, name: "Cafe H", seating: 5, outlets: 3, noise: 2, image: "/images/default-cafe.jpeg" },
-        { id: 9, name: "Cafe I", seating: 4, outlets: 4, noise: 5, image: "/images/default-cafe.jpeg" },
-        { id: 10, name: "Cafe J", seating: 3, outlets: 3, noise: 1, image: "/images/default-cafe.jpeg" },
-      ];
-      setCafes(mockCafes);
-    }
+    const fetchCafes = async () => {
+      if (location && radius) {
+        try {
+          const response = await fetch(
+            `http://localhost:8000/api/cafes?selectedPlace=${encodeURIComponent(
+              location
+            )}&radius=${radius}`
+          );
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch cafes');
+          }
+
+          const data = await response.json();
+
+          // Map the API response to your Cafe type with palceholder ratings
+          const formattedCafes: Cafe[] = data.cafes.slice(0, 5).map((cafe: any, index: number) => ({
+            id: index + 1,
+            name: cafe.name,
+            address: cafe.address,
+            rating: cafe.rating || 0,
+            seating: 3,  // placeholder
+            outlets: 3,  // placeholder
+            noise: 3,    // placeholder
+            image: cafe.photo_url || "/images/default-cafe.avif"
+          }));
+          setCafes(formattedCafes);
+        } catch (error) {
+          console.error('Error fetching cafes:', error);
+          setCafes([]);
+        }
+      }
+    };
+
+    fetchCafes();
   }, [location, radius]);
+
 
 
   // Function to sort cafes based on the selected filter
@@ -116,19 +145,31 @@ export default function CafesPage() {
       </div>
 
 
-      {/* Placeholder Café List */}
+      {/* Café List */}
       <div className="space-y-4">
         {getSortedCafes().map((cafe) => ( // use sorted version of cafes
 
           // Individual café card
           <div
             key={cafe.id} // unique key for React rendering
-            className="flex items-center justify-between p-4 bg-[#f8f5f0] rounded-md w-80 
+            className="flex items-center justify-between p-4 bg-[#f8f5f0] rounded-md w-[500px] 
             shadow-md text-[#2c3639] hover:bg-[#5e503f] hover:text-white transition-colors duration-500"
           >
             {/* Café Details: seats, outlets, and noise levels */}
             <div className="flex flex-col">
-              <h2 className="text-xl font-bold">{cafe.name}</h2>
+              <h2 className="text-2xl font-bold">{cafe.name}</h2>
+
+              {/* Format Address - one line if no street number, two lines if there is */}
+              {/\d/.test(cafe.address.split(',')[0]) ? (
+                <>
+                  <p>{cafe.address.split(',')[0]}</p>
+                  <p>{cafe.address.split(',').slice(1).join(',').trim()}</p>
+                </>
+              ) : (
+                <p>{cafe.address}</p>
+              )}
+
+              <p className="mt-2">Google Rating: {cafe.rating}</p>
 
               <p>Seats: {"★".repeat(cafe.seating)}{"☆".repeat(5 - cafe.seating)}</p>
               <p>Outlets: {"★".repeat(cafe.outlets)}{"☆".repeat(5 - cafe.outlets)}</p>
@@ -139,7 +180,7 @@ export default function CafesPage() {
             <img 
               src={cafe.image} 
               alt={`Image of ${cafe.name}`} 
-              className="w-20 h-20 rounded-md object-cover ml-4"
+              className="w-32 h-32 rounded-md object-cover ml-4"
             />
           </div>
         ))}
@@ -147,3 +188,80 @@ export default function CafesPage() {
     </div>
   );
 }
+
+
+// interface Cafe {
+//   name: string;
+//   rating: number;
+//   address: string;
+//   photo_url: string;
+// }
+
+// export default function CafesPage() {
+//   const searchParams = useSearchParams();
+//   const [cafes, setCafes] = useState<Cafe[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+
+//   useEffect(() => {
+//     const fetchCafes = async () => {
+//       try {
+//         const selectedPlace = searchParams.get('selectedPlace');
+//         const radius = searchParams.get('radius');
+
+//         if (!selectedPlace || !radius) {
+//           throw new Error('Missing search parameters');
+//         }
+
+//         const response = await fetch(
+//           `http://localhost:8000/api/cafes?selectedPlace=${encodeURIComponent(
+//             selectedPlace
+//           )}&radius=${radius}`
+//         );
+
+//         if (!response.ok) {
+//           throw new Error('Failed to fetch cafes');
+//         }
+
+//         const data = await response.json();
+//         setCafes(data.cafes);
+//       } catch (err) {
+//         setError(err instanceof Error ? err.message : 'An error occurred');
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchCafes();
+//   }, [searchParams]);
+
+//   if (loading) return <div>Loading...</div>;
+//   if (error) return <div>Error: {error}</div>;
+
+//   return (
+//     <div className="container mx-auto p-4">
+//       <h1 className="text-2xl font-bold mb-4">Top 5 Cafes</h1>
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+//         {cafes.map((cafe, index) => (
+//           <div key={index} className="border rounded-lg overflow-hidden shadow-lg">
+//             {cafe.photo_url && (
+//               <div className="relative h-48 w-full">
+//                 <Image
+//                   src={cafe.photo_url}
+//                   alt={cafe.name}
+//                   fill
+//                   className="object-cover"
+//                 />
+//               </div>
+//             )}
+//             <div className="p-4">
+//               <h2 className="text-xl font-semibold mb-2">{cafe.name}</h2>
+//               <p className="text-gray-600">Rating: {cafe.rating} ⭐</p>
+//               <p className="text-gray-600 text-sm">{cafe.address}</p>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }

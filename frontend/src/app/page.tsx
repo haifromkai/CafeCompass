@@ -23,8 +23,8 @@ export default function Home() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // prevents default form submission behavior
     if (selectedPlace.trim()) {
-      // navigate to Cafes Page, pass both selectedPlace and radius in query parameters
-      router.push(`/cafes?location=${encodeURIComponent(selectedPlace)}&radius=${radius}`);
+      // push query parameters
+      router.push(`/cafes?selectedPlace=${encodeURIComponent(selectedPlace)}&radius=${radius}`);
     }
   };
 
