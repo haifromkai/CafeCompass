@@ -33,7 +33,7 @@ def fetch_cafes(location: str, radius: int) -> List[Dict]:
             location=(lat, lng),
             type=place_type,
             keyword=f'{place_type}',
-            radius=radius
+            radius=radius # places must be within this distance
         )
         if places_result.get('results'):
             all_places.extend(places_result.get('results'))
@@ -68,12 +68,14 @@ def fetch_cafes(location: str, radius: int) -> List[Dict]:
     return cafes
 
 if __name__ == "__main__":
-    # Convert 3 miles to meters (3 * 1609.34)
-    radius_in_meters = int(3 * 1609.34)  # ≈ 4828 meters
-    test_cafes = fetch_cafes("San Jose, CA", radius_in_meters)
-    
-    # Print results in a more readable format
-    print(f"\nTop 5 Cafes in San Jose within 3 miles:")
+    # Convert 3 miles to meters
+    radius_in_meters = int(3 * 1609.34)
+
+    # Call method
+    test_cafes = fetch_cafes("San Francisco, CA", radius_in_meters)
+
+    # Print results
+    print(f"\nTop 5 Cafes in San Francisco, CA within 3 miles:")
     print("-" * 50)
     for cafe in test_cafes:
         print(f"Name: {cafe['name']}")
