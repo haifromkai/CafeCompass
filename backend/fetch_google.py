@@ -14,6 +14,8 @@ api_key = os.getenv('GOOGLE_PLACES_API_KEY')
 if not api_key:
     raise ValueError("API key not found in environment variables. Please check your .env.backend file.")
 
+
+
 def fetch_cafes(location: str, radius: int) -> List[Dict]:
     gmaps = googlemaps.Client(key=api_key)
     
@@ -41,41 +43,44 @@ def fetch_cafes(location: str, radius: int) -> List[Dict]:
     # Remove duplicates based on place_id
     unique_places = {place['place_id']: place for place in all_places}.values()
     
+    # Get details and sort by rating
     cafes = []
-    for place in list(unique_places)[:5]:  # Get top 5 results
+    for place in unique_places:
         cafe_details = gmaps.place(place['place_id'], fields=[
             'name', 'rating', 'formatted_address', 'photo'
         ])['result']
         
-        # Get photo URL if available
-        photo_reference = cafe_details.get('photos', [{}])[0].get('photo_reference') if cafe_details.get('photos') else None
-        photo_url = None
-        if photo_reference:
-            photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference={photo_reference}&key={api_key}"
-        
-        cafe_data = {
-            'name': cafe_details.get('name'),
-            'rating': cafe_details.get('rating'),
-            'address': cafe_details.get('formatted_address'),
-            'photo_reference': photo_reference,
-            'photo_url': photo_url
-        }
-        cafes.append(cafe_data)
+        # Only add places that have a rating
+        if cafe_details.get('rating'):
+
+            # Get Photo Reference and Photo URL
+            photo_reference = cafe_details.get('photos', [{}])[0].get('photo_reference') if cafe_details.get('photos') else None
+            photo_url = None
+            if photo_reference:
+                photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference={photo_reference}&key={api_key}"
+            
+            cafe_data = {
+                'name': cafe_details.get('name'),
+                'rating': cafe_details.get('rating'),
+                'address': cafe_details.get('formatted_address'),
+                'photo_reference': photo_reference,
+                'photo_url': photo_url
+            }
+            cafes.append(cafe_data)
     
-    # Sort by rating (highest first), handling None values
-    cafes.sort(key=lambda x: (x.get('rating') or 0), reverse=True)
-    
-    return cafes
+    # Sort by rating (highest first) and take top 5
+    cafes.sort(key=lambda x: x['rating'], reverse=True)
+    return cafes[:5]
 
 if __name__ == "__main__":
     # Convert 3 miles to meters
     radius_in_meters = int(3 * 1609.34)
 
     # Call method
-    test_cafes = fetch_cafes("San Francisco, CA", radius_in_meters)
+    test_cafes = fetch_cafes("San Jose, CA", radius_in_meters)
 
     # Print results
-    print(f"\nTop 5 Cafes in San Francisco, CA within 3 miles:")
+    print(f"\nTop 5 Cafes in San Jose, CA within 3 miles:")
     print("-" * 50)
     for cafe in test_cafes:
         print(f"Name: {cafe['name']}")
