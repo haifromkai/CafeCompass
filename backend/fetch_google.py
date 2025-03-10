@@ -47,7 +47,7 @@ def fetch_cafes(location: str, radius: int) -> List[Dict]:
     cafes = []
     for place in unique_places:
         cafe_details = gmaps.place(place['place_id'], fields=[
-            'name', 'rating', 'formatted_address', 'photo'
+            'name', 'rating', 'formatted_address', 'photo', 'url', 'website', 'reviews'
         ])['result']
         
         # Only add places that have a rating
@@ -58,13 +58,18 @@ def fetch_cafes(location: str, radius: int) -> List[Dict]:
             photo_url = None
             if photo_reference:
                 photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference={photo_reference}&key={api_key}"
-            
+
+            rev = cafe_details.get('reviews', [{}])[0].get('text') if cafe_details.get('reviews') else None
+
             cafe_data = {
                 'name': cafe_details.get('name'),
                 'rating': cafe_details.get('rating'),
                 'address': cafe_details.get('formatted_address'),
                 'photo_reference': photo_reference,
-                'photo_url': photo_url
+                'photo_url': photo_url,
+                'web': cafe_details.get('website'),
+                'googlemapsurl': cafe_details.get('url'),
+                'rev': rev
             }
             cafes.append(cafe_data)
     
@@ -89,4 +94,7 @@ if __name__ == "__main__":
         print(f"Has Photo: {'Yes' if cafe['photo_reference'] else 'No'}")
         if cafe['photo_url']:
             print(f"Photo URL: {cafe['photo_url']}")
+        print(f"Website: {cafe['web']}")
+        print(f"GoogleMapsURL: {cafe['googlemapsurl']}")
+        print(f"First Review: {cafe['rev']}")
         print("-" * 50)
